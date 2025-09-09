@@ -3,44 +3,29 @@ import api from "../services/api";
 
 const CarForm = ({ onSuccess, initialData = {} }) => {
   const [formData, setFormData] = useState({
-    // Основные поля
     make: "",
     model: "",
     year: "",
     vin: "",
-
-    // Внешность и тип
     bodyType: "",
     color: "",
-
-    // Двигатель
     engineVolume: "",
     engineType: "",
     power: "",
-
-    // Топливная система
     fuelTankCapacity: "",
     cityFuelConsumption: "",
     highwayFuelConsumption: "",
-
-    // Трансмиссия
     transmission: "",
     driveType: "",
-
-    // Габариты
     length: "",
     width: "",
     height: "",
     groundClearance: "",
     wheelbase: "",
-
-    // Документы
     registrationNumber: "",
     vehicleCertificateNumber: "",
     drivingLicenseNumber: "",
     driverLicenseNumber: "",
-
-    // Обновляем значения, если переданы
     ...initialData,
   });
 
@@ -53,38 +38,23 @@ const CarForm = ({ onSuccess, initialData = {} }) => {
     e.preventDefault();
 
     try {
-      // Подготовка данных с правильными типами
       const data = { ...formData };
+      const numericFields = [
+        'year', 'engineVolume', 'power', 'fuelTankCapacity',
+        'cityFuelConsumption', 'highwayFuelConsumption', 'length',
+        'width', 'height', 'groundClearance', 'wheelbase'
+      ];
+      numericFields.forEach(field => {
+        if (data[field]) data[field] = parseFloat(data[field]);
+      });
 
-      // Преобразуем числовые поля
-      if (data.year) data.year = parseInt(data.year);
-      if (data.engineVolume) data.engineVolume = parseFloat(data.engineVolume);
-      if (data.power) data.power = parseInt(data.power);
-      if (data.fuelTankCapacity)
-        data.fuelTankCapacity = parseFloat(data.fuelTankCapacity);
-      if (data.cityFuelConsumption)
-        data.cityFuelConsumption = parseFloat(data.cityFuelConsumption);
-      if (data.highwayFuelConsumption)
-        data.highwayFuelConsumption = parseFloat(data.highwayFuelConsumption);
-      if (data.length) data.length = parseFloat(data.length);
-      if (data.width) data.width = parseFloat(data.width);
-      if (data.height) data.height = parseFloat(data.height);
-      if (data.groundClearance)
-        data.groundClearance = parseFloat(data.groundClearance);
-      if (data.wheelbase) data.wheelbase = parseFloat(data.wheelbase);
 
       let response;
       if (initialData.id) {
-        // Редактирование
         response = await api.put(`/cars/${initialData.id}`, data);
-        alert("Автомобиль успешно обновлён!");
       } else {
-        // Создание
         response = await api.post("/cars", data);
-        alert("Автомобиль успешно добавлен!");
       }
-
-      // Вызываем callback (например, обновление списка)
       onSuccess(response.data.data);
     } catch (err) {
       const errorMsg =
@@ -94,246 +64,92 @@ const CarForm = ({ onSuccess, initialData = {} }) => {
     }
   };
 
+  const renderInputField = (name, placeholder, type = "text", required = false, step) => (
+      <div>
+          <label htmlFor={name} className="block text-sm font-medium text-gray-700">{placeholder}</label>
+          <input
+              id={name}
+              name={name}
+              placeholder={placeholder}
+              type={type}
+              value={formData[name]}
+              onChange={handleChange}
+              required={required}
+              step={step}
+              className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+          />
+      </div>
+  );
+
   return (
-    <form onSubmit={handleSubmit} style={styles.form}>
-      <h3>
+    <form onSubmit={handleSubmit} className="p-6 bg-gray-50 rounded-lg shadow-md border border-gray-200">
+      <h3 className="text-2xl font-semibold mb-6 text-gray-800">
         {initialData.id ? "Редактировать автомобиль" : "Добавить автомобиль"}
       </h3>
 
-      <div style={styles.grid}>
-        {/* Основные данные */}
-        <input
-          name="make"
-          placeholder="Марка"
-          value={formData.make}
-          onChange={handleChange}
-          required
-          style={styles.input}
-        />
-        <input
-          name="model"
-          placeholder="Модель"
-          value={formData.model}
-          onChange={handleChange}
-          required
-          style={styles.input}
-        />
-        <input
-          name="year"
-          placeholder="Год выпуска"
-          type="number"
-          value={formData.year}
-          onChange={handleChange}
-          required
-          style={styles.input}
-        />
-        <input
-          name="vin"
-          placeholder="VIN (уникальный)"
-          value={formData.vin}
-          onChange={handleChange}
-          required
-          style={styles.input}
-        />
-        <input
-          name="bodyType"
-          placeholder="Тип кузова (седан, хэтчбек и т.д.)"
-          value={formData.bodyType}
-          onChange={handleChange}
-          style={styles.input}
-        />
-        <input
-          name="color"
-          placeholder="Цвет"
-          value={formData.color}
-          onChange={handleChange}
-          style={styles.input}
-        />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="col-span-1">
+          <h4 className="text-lg font-medium text-gray-700 mb-3">Основная информация</h4>
+          {renderInputField("make", "Марка", "text", true)}
+          {renderInputField("model", "Модель", "text", true)}
+          {renderInputField("year", "Год выпуска", "number", true)}
+          {renderInputField("vin", "VIN (уникальный)", "text", true)}
+        </div>
 
-        {/* Двигатель */}
-        <input
-          name="engineVolume"
-          placeholder="Объём двигателя (л)"
-          type="number"
-          step="0.1"
-          value={formData.engineVolume}
-          onChange={handleChange}
-          style={styles.input}
-        />
-        <input
-          name="engineType"
-          placeholder="Тип двигателя (бензин, дизель, электрика)"
-          value={formData.engineType}
-          onChange={handleChange}
-          style={styles.input}
-        />
-        <input
-          name="power"
-          placeholder="Мощность (л.с.)"
-          type="number"
-          value={formData.power}
-          onChange={handleChange}
-          style={styles.input}
-        />
+        <div className="col-span-1">
+          <h4 className="text-lg font-medium text-gray-700 mb-3">Внешний вид</h4>
+          {renderInputField("bodyType", "Тип кузова")}
+          {renderInputField("color", "Цвет")}
+        </div>
 
-        {/* Топливная система */}
-        <input
-          name="fuelTankCapacity"
-          placeholder="Объём бака (л)"
-          type="number"
-          step="0.1"
-          value={formData.fuelTankCapacity}
-          onChange={handleChange}
-          style={styles.input}
-        />
-        <input
-          name="cityFuelConsumption"
-          placeholder="Расход в городе (л/100 км)"
-          type="number"
-          step="0.1"
-          value={formData.cityFuelConsumption}
-          onChange={handleChange}
-          style={styles.input}
-        />
-        <input
-          name="highwayFuelConsumption"
-          placeholder="Расход на трассе (л/100 км)"
-          type="number"
-          step="0.1"
-          value={formData.highwayFuelConsumption}
-          onChange={handleChange}
-          style={styles.input}
-        />
+        <div className="col-span-1">
+          <h4 className="text-lg font-medium text-gray-700 mb-3">Двигатель</h4>
+          {renderInputField("engineVolume", "Объём двигателя (л)", "number", false, "0.1")}
+          {renderInputField("engineType", "Тип двигателя")}
+          {renderInputField("power", "Мощность (л.с.)", "number")}
+        </div>
 
-        {/* Трансмиссия */}
-        <input
-          name="transmission"
-          placeholder="Коробка передач (автомат, МКПП)"
-          value={formData.transmission}
-          onChange={handleChange}
-          style={styles.input}
-        />
-        <input
-          name="driveType"
-          placeholder="Привод (передний, задний, полный)"
-          value={formData.driveType}
-          onChange={handleChange}
-          style={styles.input}
-        />
+        <div className="col-span-1">
+          <h4 className="text-lg font-medium text-gray-700 mb-3">Топливная система</h4>
+          {renderInputField("fuelTankCapacity", "Объём бака (л)", "number", false, "0.1")}
+          {renderInputField("cityFuelConsumption", "Расход в городе (л/100 км)", "number", false, "0.1")}
+          {renderInputField("highwayFuelConsumption", "Расход на трассе (л/100 км)", "number", false, "0.1")}
+        </div>
+        
+        <div className="col-span-1">
+            <h4 className="text-lg font-medium text-gray-700 mb-3">Трансмиссия</h4>
+            {renderInputField("transmission", "Коробка передач")}
+            {renderInputField("driveType", "Привод")}
+        </div>
 
-        {/* Габариты */}
-        <input
-          name="length"
-          placeholder="Длина (м)"
-          type="number"
-          step="0.01"
-          value={formData.length}
-          onChange={handleChange}
-          style={styles.input}
-        />
-        <input
-          name="width"
-          placeholder="Ширина (м)"
-          type="number"
-          step="0.01"
-          value={formData.width}
-          onChange={handleChange}
-          style={styles.input}
-        />
-        <input
-          name="height"
-          placeholder="Высота (м)"
-          type="number"
-          step="0.01"
-          value={formData.height}
-          onChange={handleChange}
-          style={styles.input}
-        />
-        <input
-          name="groundClearance"
-          placeholder="Дорожный просвет (мм)"
-          type="number"
-          value={formData.groundClearance}
-          onChange={handleChange}
-          style={styles.input}
-        />
-        <input
-          name="wheelbase"
-          placeholder="База (мм)"
-          type="number"
-          value={formData.wheelbase}
-          onChange={handleChange}
-          style={styles.input}
-        />
+        <div className="col-span-1">
+            <h4 className="text-lg font-medium text-gray-700 mb-3">Габариты</h4>
+            {renderInputField("length", "Длина (м)", "number", false, "0.01")}
+            {renderInputField("width", "Ширина (м)", "number", false, "0.01")}
+            {renderInputField("height", "Высота (м)", "number", false, "0.01")}
+            {renderInputField("groundClearance", "Дорожный просвет (мм)", "number")}
+            {renderInputField("wheelbase", "База (мм)", "number")}
+        </div>
 
-        {/* Документы */}
-        <input
-          name="registrationNumber"
-          placeholder="Регистрационный номер"
-          value={formData.registrationNumber}
-          onChange={handleChange}
-          style={styles.input}
-        />
-        <input
-          name="vehicleCertificateNumber"
-          placeholder="Номер ПТС"
-          value={formData.vehicleCertificateNumber}
-          onChange={handleChange}
-          style={styles.input}
-        />
-        <input
-          name="drivingLicenseNumber"
-          placeholder="Номер водительского удостоверения"
-          value={formData.drivingLicenseNumber}
-          onChange={handleChange}
-          style={styles.input}
-        />
-        <input
-          name="driverLicenseNumber"
-          placeholder="Номер талона ТО"
-          value={formData.driverLicenseNumber}
-          onChange={handleChange}
-          style={styles.input}
-        />
+        <div className="col-span-1 md:col-span-2 lg:col-span-3">
+             <h4 className="text-lg font-medium text-gray-700 mb-3">Документы</h4>
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {renderInputField("registrationNumber", "Регистрационный номер")}
+                {renderInputField("vehicleCertificateNumber", "Номер ПТС")}
+                {renderInputField("drivingLicenseNumber", "Номер водительского удостоверения")}
+                {renderInputField("driverLicenseNumber", "Номер талона ТО")}
+            </div>
+        </div>
       </div>
 
-      <button type="submit" style={styles.button}>
+      <button
+        type="submit"
+        className="mt-8 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+      >
         {initialData.id ? "Обновить автомобиль" : "Добавить автомобиль"}
       </button>
     </form>
   );
-};
-
-// Стили
-const styles = {
-  form: {
-    backgroundColor: "#f8f9fa",
-    padding: "20px",
-    borderRadius: "8px",
-    border: "1px solid #dee2e6",
-    marginBottom: "30px",
-  },
-  grid: {
-    display: "grid",
-    gridTemplateColumns: "1fr 1fr",
-    gap: "12px",
-  },
-  input: {
-    padding: "10px",
-    border: "1px solid #ced4da",
-    borderRadius: "4px",
-    fontSize: "14px",
-  },
-  button: {
-    marginTop: "20px",
-    padding: "12px 20px",
-    backgroundColor: "#007bff",
-    color: "white",
-    border: "none",
-    borderRadius: "4px",
-    cursor: "pointer",
-    fontSize: "16px",
-  },
 };
 
 export default CarForm;

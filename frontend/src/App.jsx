@@ -6,7 +6,7 @@ import Dashboard from "./pages/Dashboard";
 import CarsPage from "./pages/CarsPage";
 import MaintenancePage from "./pages/MaintenancePage";
 import ProtectedRoute from "./components/ProtectedRoute";
-import CarDetailsPage from "./pages/CarDetailsPage";
+import CarDetailPage from "./pages/CarDetailPage";
 import Header from "./components/Header"; // Добавляем Header
 
 function App() {
@@ -44,7 +44,7 @@ function App() {
           path="/cars/:id"
           element={
             <ProtectedRoute>
-              <CarDetailsPage />
+              <CarDetailPage />
             </ProtectedRoute>
           }
         />

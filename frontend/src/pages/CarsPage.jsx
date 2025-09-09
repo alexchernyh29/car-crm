@@ -1,7 +1,6 @@
 // frontend/src/pages/CarsPage.jsx
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import Header from "../components/Header";
 import CarForm from "../components/CarForm";
 import api from "../services/api";
 
@@ -40,85 +39,57 @@ const CarsPage = () => {
   };
 
   return (
-    <>
-      <Header />
-      <div className="container">
-        <h2>Мои автомобили</h2>
+    <div className="container mx-auto mt-10 p-4">
+      <h2 className="text-3xl font-bold mb-6">Мои автомобили</h2>
 
-        {/* Форма добавления автомобиля */}
+      <div className="mb-8">
         <CarForm
           onSuccess={() => {
             alert("Автомобиль добавлен!");
             loadCars();
           }}
         />
+      </div>
 
-        {/* Список автомобилей */}
-        <ul style={{ listStyle: "none", padding: 0 }}>
-          {cars.length === 0 ? (
-            <p>Нет автомобилей. Добавьте первый.</p>
-          ) : (
-            cars.map((car) => (
+      <div>
+        {cars.length === 0 ? (
+          <p className="text-center text-gray-500">Нет автомобилей. Добавьте первый.</p>
+        ) : (
+          <ul className="space-y-4">
+            {cars.map((car) => (
               <li
                 key={car.id}
-                style={{
-                  position: "relative",
-                  padding: "15px",
-                  margin: "10px 0",
-                  border: "1px solid #ddd",
-                  borderRadius: "8px",
-                  backgroundColor: "#fff",
-                  boxShadow: "0 1px 4px rgba(0,0,0,0.1)",
-                }}
+                className="bg-white p-4 rounded-lg shadow-md flex justify-between items-center"
               >
-                <Link
-                  to={`/cars/${car.id}`}
-                  style={{
-                    textDecoration: "none",
-                    color: "#1a73e8",
-                    display: "block",
-                  }}
-                >
-                  <strong>
-                    {car.make} {car.model}
-                  </strong>{" "}
-                  ({car.year})
-                  <br />
-                  <small>VIN: {car.vin}</small>
-                  {car.color && <span> • Цвет: {car.color}</span>}
-                  {car.registrationNumber && (
-                    <span> • Рег. номер: {car.registrationNumber}</span>
-                  )}
+                <Link to={`/cars/${car.id}`} className="flex-grow">
+                  <div className="font-bold text-xl text-blue-600 hover:underline">
+                    {car.make} {car.model} ({car.year})
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    <span>VIN: {car.vin}</span>
+                    {car.color && <span className="ml-4">Цвет: {car.color}</span>}
+                    {car.registrationNumber && (
+                      <span className="ml-4">
+                        Рег. номер: {car.registrationNumber}
+                      </span>
+                    )}
+                  </div>
                 </Link>
-
-                {/* Кнопка удаления */}
                 <button
                   onClick={(e) => {
-                    e.preventDefault(); // Не вызываем переход
+                    e.preventDefault();
                     handleDelete(car.id);
                   }}
-                  style={{
-                    position: "absolute",
-                    right: "10px",
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    background: "#dc3545",
-                    color: "white",
-                    border: "none",
-                    padding: "6px 10px",
-                    borderRadius: "4px",
-                    cursor: "pointer",
-                    fontSize: "12px",
-                  }}
+                  className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg ml-4"
                 >
                   Удалить
                 </button>
               </li>
-            ))
-          )}
-        </ul>
+            ))}
+          </ul>
+        )}
       </div>
-    </>
+    </div>
   );
 };
 
